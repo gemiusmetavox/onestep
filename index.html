@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Pages 上手指南 // 霓虹赛博版</title>
+<style>
+  :root{
+    --bg:#06060f;
+    --bg2:#0b0b1f;
+    --cyan:#00f0ff;
+    --pink:#ff2bd6;
+    --purple:#9d4bff;
+    --yellow:#ffe600;
+    --green:#39ff14;
+    --text:#d7e3ff;
+    --dim:#7a86b8;
+    --card:rgba(18,18,42,0.7);
+    --line:rgba(0,240,255,0.25);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",ui-sans-serif,system-ui,sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* moving neon grid bg */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background-image:
+      linear-gradient(rgba(0,240,255,0.07) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,43,214,0.07) 1px,transparent 1px);
+    background-size:44px 44px;
+    transform:perspective(400px) rotateX(60deg) translateY(0);
+    transform-origin:center top;
+    animation:grid 14s linear infinite;
+    z-index:0;pointer-events:none;mask-image:linear-gradient(to bottom,transparent,#000 30%,#000 70%,transparent);
+  }
+  @keyframes grid{to{background-position:0 44px,44px 0}}
+  /* scanline overlay */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:50;pointer-events:none;
+    background:repeating-linear-gradient(transparent 0 2px,rgba(0,0,0,0.18) 3px 4px);
+    mix-blend-mode:overlay;opacity:.5;
+  }
+  .wrap{position:relative;z-index:2;max-width:980px;margin:0 auto;padding:0 22px}
+
+  /* ---------- HERO ---------- */
+  header{min-height:92vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative}
+  .tag{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--cyan);letter-spacing:.35em;font-size:.8rem;border:1px solid var(--line);padding:7px 16px;border-radius:30px;background:rgba(0,240,255,.05);box-shadow:0 0 22px rgba(0,240,255,.25)}
+  h1.glitch{
+    font-size:clamp(2.4rem,8vw,5.2rem);font-weight:900;line-height:1.05;margin:26px 0 10px;
+    color:#fff;position:relative;letter-spacing:-1px;
+    text-shadow:0 0 14px rgba(0,240,255,.55),0 0 40px rgba(255,43,214,.35);
+  }
+  .glitch span{display:block;background:linear-gradient(90deg,var(--cyan),var(--pink),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .glitch::before,.glitch::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;opacity:.85;pointer-events:none}
+  .glitch::before{color:var(--pink);animation:gl 2.6s infinite linear alternate;clip-path:inset(0 0 55% 0)}
+  .glitch::after{color:var(--cyan);animation:gl2 3.1s infinite linear alternate;clip-path:inset(58% 0 0 0)}
+  @keyframes gl{0%{transform:translate(0)}20%{transform:translate(-3px,1px)}40%{transform:translate(2px,-2px)}60%{transform:translate(-2px,0)}100%{transform:translate(0)}}
+  @keyframes gl2{0%{transform:translate(0)}25%{transform:translate(2px,1px)}50%{transform:translate(-2px,-1px)}75%{transform:translate(1px,2px)}100%{transform:translate(0)}}
+  .sub{font-size:clamp(1rem,2.6vw,1.3rem);color:var(--text);max-width:640px;margin:8px auto 4px}
+  .typed{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--green);min-height:1.6em;margin-top:14px;font-size:1rem}
+  .typed .cur{display:inline-block;width:9px;background:var(--green);animation:blink 1s steps(1) infinite;margin-left:2px}
+  @keyframes blink{50%{opacity:0}}
+  .scroll-hint{margin-top:46px;color:var(--dim);font-size:.8rem;letter-spacing:.2em;animation:bob 1.8s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(8px)}}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:78px 0;position:relative}
+  .eyebrow{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--pink);letter-spacing:.3em;font-size:.78rem;text-transform:uppercase}
+  h2{font-size:clamp(1.7rem,5vw,2.7rem);margin:8px 0 8px;color:#fff;font-weight:800;text-shadow:0 0 18px rgba(157,75,255,.4)}
+  h2 b{background:linear-gradient(90deg,var(--cyan),var(--pink));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lead{color:var(--dim);max-width:660px;font-size:1.05rem}
+
+  /* what-is panel */
+  .panel{margin-top:30px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px;backdrop-filter:blur(8px);box-shadow:0 0 40px rgba(0,240,255,.08),inset 0 0 30px rgba(157,75,255,.05)}
+  .panel p{margin-bottom:14px}
+  .hl{color:var(--cyan);font-weight:700}
+  .hl-pink{color:var(--pink);font-weight:700}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .chip{font-family:ui-monospace,monospace;font-size:.8rem;padding:6px 14px;border-radius:20px;border:1px solid var(--line);color:var(--cyan);background:rgba(0,240,255,.06)}
+
+  /* capability cards */
+  .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;margin-top:34px}
+  .ccard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 20px;transition:.25s;cursor:default;position:relative;overflow:hidden}
+  .ccard::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0,rgba(0,240,255,.18),transparent 60%);opacity:0;transition:.25s}
+  .ccard:hover{transform:translateY(-6px);border-color:var(--cyan);box-shadow:0 14px 40px rgba(0,240,255,.25)}
+  .ccard:hover::after{opacity:1}
+  .ccard .ic{font-size:2.1rem;margin-bottom:12px;filter:drop-shadow(0 0 8px rgba(0,240,255,.6))}
+  .ccard h3{font-size:1.1rem;color:#fff;margin-bottom:6px}
+  .ccard p{font-size:.9rem;color:var(--dim)}
+
+  /* steps */
+  .steps{margin-top:34px;display:flex;flex-direction:column;gap:16px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.25s}
+  .step.open{border-color:var(--pink);box-shadow:0 0 34px rgba(255,43,214,.2)}
+  .step-head{display:flex;align-items:center;gap:18px;padding:20px 22px;cursor:pointer;user-select:none}
+  .step-num{flex:0 0 auto;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-family:ui-monospace,monospace;font-weight:800;font-size:1.2rem;color:var(--bg);background:linear-gradient(135deg,var(--cyan),var(--pink));box-shadow:0 0 18px rgba(0,240,255,.5)}
+  .step-head h3{flex:1;font-size:1.15rem;color:#fff}
+  .step-head .arr{color:var(--cyan);transition:.3s;font-size:1.3rem}
+  .step.open .arr{transform:rotate(90deg)}
+  .step-body{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 22px}
+  .step.open .step-body{max-height:520px;padding-bottom:22px}
+  .step-body p{color:var(--text);margin-bottom:10px}
+  .step-body .note{color:var(--dim);font-size:.9rem}
+  code.kbd{font-family:ui-monospace,monospace;background:rgba(0,240,255,.1);border:1px solid var(--line);color:var(--cyan);padding:2px 8px;border-radius:6px;font-size:.88em}
+
+  /* terminal / deploy simulator */
+  .term{margin-top:34px;background:#04040c;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 0 50px rgba(157,75,255,.18)}
+  .term-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line)}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .d1{background:#ff5f56}.d2{background:#ffbd2e}.d3{background:#27c93f}
+  .term-title{margin-left:10px;font-family:ui-monospace,monospace;font-size:.8rem;color:var(--dim)}
+  .term-body{padding:20px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9rem;min-height:190px;color:var(--green)}
+  .term-body .l{display:block;white-space:pre-wrap;opacity:0;animation:fadein .3s forwards}
+  @keyframes fadein{to{opacity:1}}
+  .term-body .c-cyan{color:var(--cyan)}
+  .term-body .c-pink{color:var(--pink)}
+  .term-body .c-yellow{color:var(--yellow)}
+  .term-body .c-dim{color:var(--dim)}
+  .bar{height:14px;border-radius:8px;background:rgba(255,255,255,.08);overflow:hidden;margin:8px 0}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .1s linear}
+
+  .btn{display:inline-flex;align-items:center;gap:10px;margin-top:22px;cursor:pointer;border:none;font-family:ui-monospace,monospace;font-weight:700;font-size:1rem;color:var(--bg);background:linear-gradient(135deg,var(--cyan),var(--pink));padding:14px 30px;border-radius:12px;letter-spacing:.05em;box-shadow:0 0 26px rgba(0,240,255,.4);transition:.2s}
+  .btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 0 40px rgba(255,43,214,.6)}
+  .btn:active{transform:translateY(0)}
+  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+  /* faq */
+  .faq{margin-top:30px;display:flex;flex-direction:column;gap:12px}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px}
+  .q b{color:var(--yellow);display:block;margin-bottom:6px}
+  .q span{color:var(--dim);font-size:.96rem}
+
+  footer{padding:60px 0 90px;text-align:center;border-top:1px solid var(--line);margin-top:40px}
+  footer .big{font-size:1.2rem;color:#fff;margin-bottom:8px}
+  footer .meta{color:var(--dim);font-size:.85rem;font-family:ui-monospace,monospace}
+  .easter{margin-top:18px;color:var(--purple);font-size:.78rem;opacity:.6;font-family:ui-monospace,monospace}
+
+  .reveal{opacity:0;transform:translateY(28px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* konami toast */
+  #toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(120px);z-index:99;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;padding:16px 26px;border-radius:14px;font-weight:700;box-shadow:0 0 40px rgba(255,43,214,.6);transition:.5s;font-family:ui-monospace,monospace}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+  @media(max-width:560px){.term-body{font-size:.78rem}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="tag">// GITHUB&nbsp;PAGES&nbsp;101</div>
+    <h1 class="glitch" data-text="把网页搬上网"><span>把网页搬上网</span></h1>
+    <p class="sub">用 <b style="color:var(--cyan)">GitHub Pages</b> 给你的网页一个全世界都能打开的网址 —— <b style="color:var(--pink)">完全免费，零基础也能学会</b></p>
+    <div class="typed" id="typed"><span class="cur">&nbsp;</span></div>
+    <div class="scroll-hint">↓ 往下滑，开始 ↓</div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap reveal">
+    <div class="eyebrow">01 / 这是什么</div>
+    <h2>GitHub Pages <b>到底是个啥？</b></h2>
+    <p class="lead">一句话：它是 GitHub 提供的一个免费服务，能把你的网页文件变成一个真正能访问的网站。</p>
+    <div class="panel">
+      <p>你写好的 <span class="hl">网页文件</span>（比如 <code class="kbd">index.html</code>），平时只能在自己电脑上双击打开，别人看不到。</p>
+      <p>把这些文件传到 GitHub 上，打开开关，GitHub 就会自动给你一个网址，例如 <span class="hl-pink">https://你的用户名.github.io</span>，然后<span class="hl">全世界任何人</span>都能用浏览器打开它。</p>
+      <p style="color:var(--dim)">💡 打个比方：你做了一张海报，GitHub Pages 就是那面免费、24 小时开放、全球可见的「公告墙」，帮你把海报贴出去。</p>
+      <div class="chips">
+        <span class="chip"># 免费</span>
+        <span class="chip"># 不用买服务器</span>
+        <span class="chip"># 自带网址</span>
+        <span class="chip"># 适合静态网页</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="eyebrow">02 / 能做什么</div>
+    <h2>它能帮你<b>上线这些东西</b></h2>
+    <p class="lead">只要是「网页」，基本都能放上去。下面这些都是同事们常见的玩法 —— 鼠标放上去看看 ✨</p>
+    <div class="grid-cards">
+      <div class="ccard"><div class="ic">🪪</div><h3>个人主页 / 简历</h3><p>一个属于你的网址，发给别人很有面子</p></div>
+      <div class="ccard"><div class="ic">📚</div><h3>项目文档站</h3><p>给团队产品做一套在线说明书</p></div>
+      <div class="ccard"><div class="ic">✍️</div><h3>博客</h3><p>写点技术或生活，公开发表</p></div>
+      <div class="ccard"><div class="ic">🎨</div><h3>作品集</h3><p>设计、摄影、代码 demo 一站展示</p></div>
+      <div class="ccard"><div class="ic">🎮</div><h3>小游戏 / 小工具</h3><p>纯前端的小应用，链接一发就能玩</p></div>
+      <div class="ccard"><div class="ic">🚀</div><h3>活动落地页</h3><p>发布会、报名页、邀请函都行</p></div>
+    </div>
+    <p class="lead" style="margin-top:24px">🤫 偷偷告诉你：<b style="color:var(--cyan)">你现在看的这个页面，本身就是一个能放上 GitHub Pages 的单文件网页。</b></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="eyebrow">03 / 怎么用</div>
+    <h2>三步，<b>把它搬上网</b></h2>
+    <p class="lead">全程在网页上点点鼠标就行，<b style="color:var(--green)">不需要懂命令行</b>。点开每一步看看 👇</p>
+    <div class="steps" id="steps">
+
+      <div class="step">
+        <div class="step-head"><div class="step-num">1</div><h3>注册 GitHub，新建一个仓库</h3><div class="arr">›</div></div>
+        <div class="step-body">
+          <p>打开 <code class="kbd">github.com</code> 注册一个免费账号（已有就直接登录）。</p>
+          <p>点右上角 <code class="kbd">+</code> → <code class="kbd">New repository</code> 新建一个「仓库」（Repository，可以理解成一个项目文件夹）。</p>
+          <p class="note">想要最干净的网址，就把仓库名起成 <span class="hl-pink">你的用户名.github.io</span>（比如用户名是 <code class="kbd">amy</code>，就叫 <code class="kbd">amy.github.io</code>）。记得勾选 <code class="kbd">Public</code>。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><div class="step-num">2</div><h3>把网页文件传上去</h3><div class="arr">›</div></div>
+        <div class="step-body">
+          <p>进入刚建好的仓库，点 <code class="kbd">Add file</code> → <code class="kbd">Upload files</code>。</p>
+          <p>把你的网页文件（至少要有一个 <code class="kbd">index.html</code>）<b style="color:var(--cyan)">直接拖进去</b>，然后点下方的 <code class="kbd">Commit changes</code> 保存。</p>
+          <p class="note">首页文件必须叫 <code class="kbd">index.html</code> —— 这是网站的「大门」，浏览器默认先找它。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><div class="step-num">3</div><h3>打开 Pages 开关</h3><div class="arr">›</div></div>
+        <div class="step-body">
+          <p>在仓库里点 <code class="kbd">Settings</code> → 左侧菜单 <code class="kbd">Pages</code>。</p>
+          <p>在 <code class="kbd">Branch</code> 处选 <code class="kbd">main</code>，文件夹保持 <code class="kbd">/ (root)</code>，点 <code class="kbd">Save</code>。</p>
+          <p>等 1～2 分钟，刷新页面，上方会出现你的网址 <span class="hl-pink">https://用户名.github.io</span> —— 点开，<b style="color:var(--green)">你的网站上线啦！🎉</b></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="eyebrow">04 / 互动彩蛋</div>
+    <h2>来，<b>亲手「部署」一次</b></h2>
+    <p class="lead">下面是一个小模拟。点一下按钮，看看你把网页上传后，GitHub 在后台帮你做了些什么 👇</p>
+    <div class="term">
+      <div class="term-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="term-title">deploy.sh — github-pages</span></div>
+      <div class="term-body" id="termOut"><span class="l c-dim">$ 点击下方按钮开始部署模拟...</span></div>
+    </div>
+    <button class="btn" id="deployBtn">▸ 开始部署</button>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="eyebrow">05 / 常见问题</div>
+    <h2>新手<b>最常问的</b></h2>
+    <div class="faq">
+      <div class="q"><b>Q：真的不要钱吗？</b><span>个人公开项目完全免费，GitHub 不收托管费、不收流量费，足够日常使用。</span></div>
+      <div class="q"><b>Q：网址多久才能打开？</b><span>第一次开启后通常等 1～5 分钟。之后每次更新文件，几十秒到几分钟内自动刷新。</span></div>
+      <div class="q"><b>Q：能放视频、做后台、连数据库吗？</b><span>它只托管「静态网页」（HTML/CSS/JS、图片等）。需要后端逻辑或数据库的功能它做不了，但纯前端页面绰绰有余。</span></div>
+      <div class="q"><b>Q：首页文件一定要叫 index.html 吗？</b><span>是的，根目录的首页请命名为 index.html，否则打开网址会显示 404。</span></div>
+      <div class="q"><b>Q：可以用自己的域名吗？</b><span>可以。Pages 设置里有 Custom domain，绑定你买的域名即可，进阶玩法，暂时不绑也完全没问题。</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="big">✦ 现在，轮到你了 ✦</div>
+    <p class="lead" style="margin:0 auto">把这个文件存成 <code class="kbd">index.html</code>，按上面三步传上去 —— 你的第一个网站就上线了。</p>
+    <p class="meta" style="margin-top:18px">made with 💖 + 霓虹 // 一个单文件 HTML，本身就能跑在 GitHub Pages 上</p>
+    <p class="easter" id="hint">心情好的话，试试键盘上的 ↑↑↓↓←→←→BA</p>
+  </div>
+</footer>
+
+<div id="toast">🌈 彩蛋激活！你已经是 GitHub Pages 高手了！</div>
+
+<script>
+/* ---- typing line in hero ---- */
+(function(){
+  var lines=["> 准备把网页搬上互联网...","> 不用服务器，不用花钱","> 跟着往下滑，3 步就能上线 ✓"];
+  var el=document.getElementById('typed'),cur=el.querySelector('.cur');
+  var li=0,ci=0;
+  function tick(){
+    var t=lines[li];
+    if(ci<=t.length){ el.textContent=t.slice(0,ci); el.appendChild(cur); ci++; setTimeout(tick,55); }
+    else { setTimeout(function(){ li=(li+1)%lines.length; ci=0; tick(); },1600); }
+  }
+  tick();
+})();
+
+/* ---- scroll reveal ---- */
+(function(){
+  var obs=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target);} });
+  },{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(function(n){obs.observe(n)});
+})();
+
+/* ---- accordion steps ---- */
+document.querySelectorAll('#steps .step').forEach(function(step){
+  step.querySelector('.step-head').addEventListener('click',function(){
+    step.classList.toggle('open');
+  });
+});
+/* open first by default */
+var first=document.querySelector('#steps .step'); if(first) first.classList.add('open');
+
+/* ---- deploy simulator ---- */
+(function(){
+  var btn=document.getElementById('deployBtn'),out=document.getElementById('termOut');
+  var running=false;
+  var seq=[
+    {t:'$ git push origin main',c:''},
+    {t:'Enumerating objects: 6, done.',c:'c-dim'},
+    {t:'✓ 文件已上传到 GitHub',c:'c-cyan'},
+    {t:'',c:'',bar:true},
+    {t:'⚙ GitHub Pages 正在构建你的网站...',c:'c-yellow'},
+    {t:'✓ 构建完成 build: success',c:''},
+    {t:'🌐 正在分发到全球 CDN 节点...',c:'c-cyan'},
+    {t:'',c:'',delay:400},
+    {t:'★ 上线成功！你的网站现在全世界都能访问：',c:'c-pink'},
+    {t:'   https://你的用户名.github.io',c:'c-cyan'},
+    {t:'',c:''},
+    {t:'$ 恭喜，这就是 GitHub Pages 做的全部事情 ✓',c:'c-dim'}
+  ];
+  function line(item){
+    if(item.bar){
+      var wrap=document.createElement('div');wrap.className='l';wrap.innerHTML='<div class="bar"><i></i></div>';
+      out.appendChild(wrap);
+      var fill=wrap.querySelector('i'),w=0;
+      var iv=setInterval(function(){w+=4;fill.style.width=Math.min(w,100)+'%';if(w>=100)clearInterval(iv);},22);
+      return 700;
+    }
+    var s=document.createElement('span');s.className='l '+(item.c||'');s.textContent=item.t||' ';
+    out.appendChild(s);out.scrollTop=out.scrollHeight;
+    return item.delay||320;
+  }
+  btn.addEventListener('click',function(){
+    if(running)return;running=true;btn.disabled=true;btn.textContent='部署中...';
+    out.innerHTML='';
+    var i=0;
+    (function step(){
+      if(i>=seq.length){running=false;btn.disabled=false;btn.textContent='▸ 再来一次';return;}
+      var d=line(seq[i]);i++;setTimeout(step,d);
+    })();
+  });
+})();
+
+/* ---- konami easter egg ---- */
+(function(){
+  var seq=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  var pos=0,toast=document.getElementById('toast');
+  document.addEventListener('keydown',function(e){
+    var k=e.key.length===1?e.key.toLowerCase():e.key;
+    if(k===seq[pos]){pos++;if(pos===seq.length){fire();pos=0;}}
+    else{pos=(k===seq[0])?1:0;}
+  });
+  function fire(){
+    toast.classList.add('show');
+    document.body.style.animation='hue 4s linear';
+    setTimeout(function(){toast.classList.remove('show');document.body.style.animation='';},4000);
+    confetti();
+  }
+  function confetti(){
+    var cols=['#00f0ff','#ff2bd6','#9d4bff','#ffe600','#39ff14'];
+    for(var i=0;i<60;i++){
+      var d=document.createElement('div');
+      d.style.cssText='position:fixed;z-index:98;width:9px;height:9px;border-radius:2px;pointer-events:none;top:-12px;left:'+Math.random()*100+'vw;background:'+cols[i%5]+';opacity:.9';
+      document.body.appendChild(d);
+      var dur=2200+Math.random()*1800,rot=Math.random()*720;
+      d.animate([{transform:'translateY(0) rotate(0)'},{transform:'translateY('+(window.innerHeight+40)+'px) rotate('+rot+'deg)'}],{duration:dur,easing:'cubic-bezier(.3,.6,.4,1)'});
+      setTimeout(function(el){return function(){el.remove()}}(d),dur);
+    }
+  }
+})();
+var st=document.createElement('style');st.textContent='@keyframes hue{from{filter:hue-rotate(0)}to{filter:hue-rotate(360deg)}}';document.head.appendChild(st);
+</script>
+</body>
+</html>
