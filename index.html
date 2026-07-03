@@ -1,381 +1,792 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GitHub Pages 上手指南 // 霓虹赛博版</title>
+<!-- saved from url=(0022)http://127.0.0.1:8765/ -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unity 一键打包 0.0.2</title>
 <style>
   :root{
-    --bg:#06060f;
-    --bg2:#0b0b1f;
-    --cyan:#00f0ff;
-    --pink:#ff2bd6;
-    --purple:#9d4bff;
-    --yellow:#ffe600;
-    --green:#39ff14;
-    --text:#d7e3ff;
-    --dim:#7a86b8;
-    --card:rgba(18,18,42,0.7);
-    --line:rgba(0,240,255,0.25);
+    --bg:#f5f6f8; --card:#fff; --line:#e3e6ea; --ink:#1f2430; --muted:#6b7280;
+    --brand:#3b6cff; --ok:#16a34a; --warn:#d97706; --err:#dc2626; --console:#0e1117;
   }
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",ui-sans-serif,system-ui,sans-serif;
-    line-height:1.7;
-    overflow-x:hidden;
-    position:relative;
-  }
-  /* moving neon grid bg */
-  body::before{
-    content:"";
-    position:fixed;inset:0;
-    background-image:
-      linear-gradient(rgba(0,240,255,0.07) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(255,43,214,0.07) 1px,transparent 1px);
-    background-size:44px 44px;
-    transform:perspective(400px) rotateX(60deg) translateY(0);
-    transform-origin:center top;
-    animation:grid 14s linear infinite;
-    z-index:0;pointer-events:none;mask-image:linear-gradient(to bottom,transparent,#000 30%,#000 70%,transparent);
-  }
-  @keyframes grid{to{background-position:0 44px,44px 0}}
-  /* scanline overlay */
-  body::after{
-    content:"";position:fixed;inset:0;z-index:50;pointer-events:none;
-    background:repeating-linear-gradient(transparent 0 2px,rgba(0,0,0,0.18) 3px 4px);
-    mix-blend-mode:overlay;opacity:.5;
-  }
-  .wrap{position:relative;z-index:2;max-width:980px;margin:0 auto;padding:0 22px}
-
-  /* ---------- HERO ---------- */
-  header{min-height:92vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative}
-  .tag{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--cyan);letter-spacing:.35em;font-size:.8rem;border:1px solid var(--line);padding:7px 16px;border-radius:30px;background:rgba(0,240,255,.05);box-shadow:0 0 22px rgba(0,240,255,.25)}
-  h1.glitch{
-    font-size:clamp(2.4rem,8vw,5.2rem);font-weight:900;line-height:1.05;margin:26px 0 10px;
-    color:#fff;position:relative;letter-spacing:-1px;
-    text-shadow:0 0 14px rgba(0,240,255,.55),0 0 40px rgba(255,43,214,.35);
-  }
-  .glitch span{display:block;background:linear-gradient(90deg,var(--cyan),var(--pink),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .glitch::before,.glitch::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;opacity:.85;pointer-events:none}
-  .glitch::before{color:var(--pink);animation:gl 2.6s infinite linear alternate;clip-path:inset(0 0 55% 0)}
-  .glitch::after{color:var(--cyan);animation:gl2 3.1s infinite linear alternate;clip-path:inset(58% 0 0 0)}
-  @keyframes gl{0%{transform:translate(0)}20%{transform:translate(-3px,1px)}40%{transform:translate(2px,-2px)}60%{transform:translate(-2px,0)}100%{transform:translate(0)}}
-  @keyframes gl2{0%{transform:translate(0)}25%{transform:translate(2px,1px)}50%{transform:translate(-2px,-1px)}75%{transform:translate(1px,2px)}100%{transform:translate(0)}}
-  .sub{font-size:clamp(1rem,2.6vw,1.3rem);color:var(--text);max-width:640px;margin:8px auto 4px}
-  .typed{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--green);min-height:1.6em;margin-top:14px;font-size:1rem}
-  .typed .cur{display:inline-block;width:9px;background:var(--green);animation:blink 1s steps(1) infinite;margin-left:2px}
-  @keyframes blink{50%{opacity:0}}
-  .scroll-hint{margin-top:46px;color:var(--dim);font-size:.8rem;letter-spacing:.2em;animation:bob 1.8s ease-in-out infinite}
-  @keyframes bob{50%{transform:translateY(8px)}}
-
-  /* ---------- SECTIONS ---------- */
-  section{padding:78px 0;position:relative}
-  .eyebrow{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--pink);letter-spacing:.3em;font-size:.78rem;text-transform:uppercase}
-  h2{font-size:clamp(1.7rem,5vw,2.7rem);margin:8px 0 8px;color:#fff;font-weight:800;text-shadow:0 0 18px rgba(157,75,255,.4)}
-  h2 b{background:linear-gradient(90deg,var(--cyan),var(--pink));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .lead{color:var(--dim);max-width:660px;font-size:1.05rem}
-
-  /* what-is panel */
-  .panel{margin-top:30px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px;backdrop-filter:blur(8px);box-shadow:0 0 40px rgba(0,240,255,.08),inset 0 0 30px rgba(157,75,255,.05)}
-  .panel p{margin-bottom:14px}
-  .hl{color:var(--cyan);font-weight:700}
-  .hl-pink{color:var(--pink);font-weight:700}
-  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
-  .chip{font-family:ui-monospace,monospace;font-size:.8rem;padding:6px 14px;border-radius:20px;border:1px solid var(--line);color:var(--cyan);background:rgba(0,240,255,.06)}
-
-  /* capability cards */
-  .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;margin-top:34px}
-  .ccard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 20px;transition:.25s;cursor:default;position:relative;overflow:hidden}
-  .ccard::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0,rgba(0,240,255,.18),transparent 60%);opacity:0;transition:.25s}
-  .ccard:hover{transform:translateY(-6px);border-color:var(--cyan);box-shadow:0 14px 40px rgba(0,240,255,.25)}
-  .ccard:hover::after{opacity:1}
-  .ccard .ic{font-size:2.1rem;margin-bottom:12px;filter:drop-shadow(0 0 8px rgba(0,240,255,.6))}
-  .ccard h3{font-size:1.1rem;color:#fff;margin-bottom:6px}
-  .ccard p{font-size:.9rem;color:var(--dim)}
-
-  /* steps */
-  .steps{margin-top:34px;display:flex;flex-direction:column;gap:16px}
-  .step{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.25s}
-  .step.open{border-color:var(--pink);box-shadow:0 0 34px rgba(255,43,214,.2)}
-  .step-head{display:flex;align-items:center;gap:18px;padding:20px 22px;cursor:pointer;user-select:none}
-  .step-num{flex:0 0 auto;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-family:ui-monospace,monospace;font-weight:800;font-size:1.2rem;color:var(--bg);background:linear-gradient(135deg,var(--cyan),var(--pink));box-shadow:0 0 18px rgba(0,240,255,.5)}
-  .step-head h3{flex:1;font-size:1.15rem;color:#fff}
-  .step-head .arr{color:var(--cyan);transition:.3s;font-size:1.3rem}
-  .step.open .arr{transform:rotate(90deg)}
-  .step-body{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 22px}
-  .step.open .step-body{max-height:520px;padding-bottom:22px}
-  .step-body p{color:var(--text);margin-bottom:10px}
-  .step-body .note{color:var(--dim);font-size:.9rem}
-  code.kbd{font-family:ui-monospace,monospace;background:rgba(0,240,255,.1);border:1px solid var(--line);color:var(--cyan);padding:2px 8px;border-radius:6px;font-size:.88em}
-
-  /* terminal / deploy simulator */
-  .term{margin-top:34px;background:#04040c;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 0 50px rgba(157,75,255,.18)}
-  .term-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line)}
-  .dot{width:12px;height:12px;border-radius:50%}
-  .d1{background:#ff5f56}.d2{background:#ffbd2e}.d3{background:#27c93f}
-  .term-title{margin-left:10px;font-family:ui-monospace,monospace;font-size:.8rem;color:var(--dim)}
-  .term-body{padding:20px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9rem;min-height:190px;color:var(--green)}
-  .term-body .l{display:block;white-space:pre-wrap;opacity:0;animation:fadein .3s forwards}
-  @keyframes fadein{to{opacity:1}}
-  .term-body .c-cyan{color:var(--cyan)}
-  .term-body .c-pink{color:var(--pink)}
-  .term-body .c-yellow{color:var(--yellow)}
-  .term-body .c-dim{color:var(--dim)}
-  .bar{height:14px;border-radius:8px;background:rgba(255,255,255,.08);overflow:hidden;margin:8px 0}
-  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .1s linear}
-
-  .btn{display:inline-flex;align-items:center;gap:10px;margin-top:22px;cursor:pointer;border:none;font-family:ui-monospace,monospace;font-weight:700;font-size:1rem;color:var(--bg);background:linear-gradient(135deg,var(--cyan),var(--pink));padding:14px 30px;border-radius:12px;letter-spacing:.05em;box-shadow:0 0 26px rgba(0,240,255,.4);transition:.2s}
-  .btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 0 40px rgba(255,43,214,.6)}
-  .btn:active{transform:translateY(0)}
-  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-
-  /* faq */
-  .faq{margin-top:30px;display:flex;flex-direction:column;gap:12px}
-  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px}
-  .q b{color:var(--yellow);display:block;margin-bottom:6px}
-  .q span{color:var(--dim);font-size:.96rem}
-
-  footer{padding:60px 0 90px;text-align:center;border-top:1px solid var(--line);margin-top:40px}
-  footer .big{font-size:1.2rem;color:#fff;margin-bottom:8px}
-  footer .meta{color:var(--dim);font-size:.85rem;font-family:ui-monospace,monospace}
-  .easter{margin-top:18px;color:var(--purple);font-size:.78rem;opacity:.6;font-family:ui-monospace,monospace}
-
-  .reveal{opacity:0;transform:translateY(28px);transition:.7s cubic-bezier(.2,.7,.2,1)}
-  .reveal.in{opacity:1;transform:none}
-
-  /* konami toast */
-  #toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(120px);z-index:99;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;padding:16px 26px;border-radius:14px;font-weight:700;box-shadow:0 0 40px rgba(255,43,214,.6);transition:.5s;font-family:ui-monospace,monospace}
-  #toast.show{transform:translateX(-50%) translateY(0)}
-  @media(max-width:560px){.term-body{font-size:.78rem}}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink)}
+  header{padding:14px 22px;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+  header h1{font-size:17px;margin:0}
+  header .sub{color:var(--muted);font-size:13px}
+  main{display:grid;grid-template-columns:minmax(420px,1fr) minmax(380px,1fr);gap:16px;padding:16px;align-items:start}
+  @media(max-width:920px){main{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .card h2{font-size:14px;margin:0 0 12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .row{margin-bottom:12px}
+  label{display:block;font-size:13px;margin-bottom:4px;color:var(--ink)}
+  .hint{color:var(--muted);font-size:12px;margin-top:3px}
+  input[type=text],input[type=number],select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff;color:var(--ink)}
+  .pathrow{display:flex;gap:6px}
+  .pathrow input{flex:1}
+  .btn{border:0;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;background:#eef1f6;color:var(--ink)}
+  .btn:hover{background:#e3e8f0}
+  .btn.brand{background:var(--brand);color:#fff}
+  .btn.brand:hover{filter:brightness(1.05)}
+  .btn.ghost{background:transparent;border:1px solid var(--line)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{border:0;background:#fff;padding:7px 14px;font-size:13px;cursor:pointer;color:var(--muted)}
+  .seg button.active{background:var(--brand);color:#fff}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .actions{display:flex;gap:10px;margin-top:6px}
+  .badge{font-size:12px;padding:3px 10px;border-radius:999px;background:#eef1f6;color:var(--muted)}
+  .badge.running{background:#fff7ed;color:var(--warn)}
+  .badge.done{background:#ecfdf3;color:var(--ok)}
+  .badge.failed{background:#fef2f2;color:var(--err)}
+  .console{background:var(--console);color:#d6deeb;border-radius:10px;padding:12px;height:62vh;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+  .console .ok{color:#7ee787}.console .err{color:#ff7b72}.console .warn{color:#f0c674}.console .step{color:#79c0ff;font-weight:600}
+  /* modal */
+  #mask{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:50}
+  #picker{background:#fff;border-radius:12px;width:min(620px,92vw);max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+  #picker .top{padding:12px 14px;border-bottom:1px solid var(--line)}
+  #picker .cur{font-size:12px;color:var(--muted);word-break:break-all;margin-top:6px}
+  #picker .list{overflow:auto;flex:1;padding:6px}
+  #picker .item{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;display:flex;gap:8px}
+  #picker .item:hover{background:#f0f3f8}
+  #picker .item.file{color:#374151}
+  #picker .bottom{padding:12px 14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+  input.autofilled{background:#eef4ff;border-color:#bcd3ff}
+  .auto-badge{display:inline-block;margin-left:6px;font-size:11px;color:var(--brand);background:#eaf0ff;border:1px solid #cfe0ff;border-radius:999px;padding:0 8px;vertical-align:middle}
+  .auto-badge.warn{color:var(--warn);background:#fff7ed;border-color:#fde6c8}
+  /* ===== 美化增强（精炼工具风 + 图标）===== */
+  :root{ --brand-600:#2f5bed; --brand-50:#eef3ff;
+    --sh-1:0 1px 2px rgba(16,24,40,.05); --sh-2:0 6px 20px rgba(16,24,40,.10); --sh-focus:0 0 0 3px var(--brand-50); }
+  header{box-shadow:var(--sh-1)}
+  header h1{display:flex;align-items:center;gap:8px}
+  .tool-version{font-size:12px;font-weight:600;color:var(--muted);background:#eef1f6;border-radius:999px;padding:2px 8px}
+  .ic{width:16px;height:16px;flex:none;vertical-align:-3px}
+  .card{box-shadow:var(--sh-1)}
+  .card h2{text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:7px;color:var(--ink);padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .card h2 .ic{color:var(--brand)}
+  input[type=text],input[type=number],select{transition:border-color .15s,box-shadow .15s}
+  input[type=text]:hover,input[type=number]:hover,select:hover{border-color:#c7ccd6}
+  input:focus-visible,select:focus-visible,input:focus,select:focus{outline:0;border-color:var(--brand);box-shadow:var(--sh-focus)}
+  input::placeholder{color:#aab0bb}
+  .pathrow input{border-top-right-radius:0;border-bottom-right-radius:0}
+  .pathrow input + .btn{border:1px solid var(--line);border-left:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#fff}
+  .pathrow input + .btn:hover{background:#f6f8fc}
+  .pathrow button[onclick^="pick("]{padding-left:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:9px center}
+  .seg button{transition:background .15s,color .15s}
+  .seg button.active{box-shadow:inset 0 0 0 1px var(--brand-600)}
+  .btn{transition:background .15s,box-shadow .15s,transform .05s}
+  .btn.brand{box-shadow:var(--sh-1)}
+  .btn.brand:hover{background:var(--brand-600);filter:none;transform:translateY(-1px);box-shadow:var(--sh-2)}
+  .btn.brand:active{transform:translateY(0)}
+  .btn.ghost{border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-50)}
+  #btnBuild,#btnDoctor{display:inline-flex;align-items:center;gap:6px}
+  .badge.running{display:inline-flex;align-items:center;gap:6px}
+  .badge.running::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--warn);animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){.badge.running::before{animation:none}}
+  #signBox{border-left:3px solid var(--warn);border-radius:0;background:#fffaf3;padding:2px 14px 10px;margin-top:8px}
+  #signBox h2{border-bottom-color:#f0e2cc}
+  .console-wrap{border:1px solid #20262f;border-radius:10px;overflow:hidden;box-shadow:var(--sh-1)}
+  .console-bar{background:#161b22;display:flex;align-items:center;gap:7px;padding:9px 12px;border-bottom:1px solid #20262f}
+  .console-bar .dot{width:10px;height:10px;border-radius:50%}
+  .console-bar .dot:nth-child(1){background:#ff5f57}
+  .console-bar .dot:nth-child(2){background:#febc2e}
+  .console-bar .dot:nth-child(3){background:#28c840}
+  .console-bar .barbtn{display:inline-flex;align-items:center;gap:5px;border:1px solid #2b3340;background:#1c2230;color:#c2ccda;border-radius:7px;padding:4px 9px;font-size:12px;line-height:1;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+  .console-bar .barbtn:first-of-type{margin-left:auto}
+  .console-bar .barbtn:hover{background:#232b3b;color:#e6edf6}
+  .console-bar .barbtn .ic{width:14px;height:14px;vertical-align:0}
+  .console-bar .barbtn.copied{color:#7ee787;border-color:#2ea043}
+  .console-wrap .console{border-radius:0}
+  #picker{box-shadow:var(--sh-2);animation:pop .16s ease-out}
+  @keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+  #picker .item:hover{background:var(--brand-50)}
+  /* iOS 区 */
+  .checks{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .checks label{display:inline-flex;align-items:center;gap:6px;margin:0;cursor:pointer;font-size:13px}
+  .checks input[type=checkbox]{width:auto;margin:0}
+  #iosSignBox{border-left:3px solid var(--warn);border-radius:0;background:#fffaf3;padding:2px 14px 10px;margin-top:8px}
+  #iosSignBox h2{border-bottom-color:#f0e2cc}
 </style>
 </head>
 <body>
-
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-hammer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h3V7L6.5 3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1-3 3l-6-6a6 6 0 0 1-8-8L7 10"></path></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V15z"></path></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"></circle><path d="m10.7 12.3 8.3-8.3"></path><path d="m17 6 2 2"></path><path d="m14 9 2 2"></path></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M6 4.5v15l13-7.5z"></path></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 17 6-6-6-6"></path><path d="M12 19h8"></path></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></symbol>
+</svg>
 <header>
-  <div class="wrap">
-    <div class="tag">// GITHUB&nbsp;PAGES&nbsp;101</div>
-    <h1 class="glitch" data-text="把网页搬上网"><span>把网页搬上网</span></h1>
-    <p class="sub">用 <b style="color:var(--cyan)">GitHub Pages</b> 给你的网页一个全世界都能打开的网址 —— <b style="color:var(--pink)">完全免费，零基础也能学会</b></p>
-    <div class="typed" id="typed"><span class="cur">&nbsp;</span></div>
-    <div class="scroll-hint">↓ 往下滑，开始 ↓</div>
-  </div>
+  <h1><svg class="ic" style="width:20px;height:20px"><use href="#i-hammer"></use></svg>Unity 一键打包 <span class="tool-version">0.0.2</span></h1>
+  <span class="sub">本地工具 · 选工程与模板 → 填版本 → 一键出包（debug / release）</span>
 </header>
 
-<section>
-  <div class="wrap reveal">
-    <div class="eyebrow">01 / 这是什么</div>
-    <h2>GitHub Pages <b>到底是个啥？</b></h2>
-    <p class="lead">一句话：它是 GitHub 提供的一个免费服务，能把你的网页文件变成一个真正能访问的网站。</p>
-    <div class="panel">
-      <p>你写好的 <span class="hl">网页文件</span>（比如 <code class="kbd">index.html</code>），平时只能在自己电脑上双击打开，别人看不到。</p>
-      <p>把这些文件传到 GitHub 上，打开开关，GitHub 就会自动给你一个网址，例如 <span class="hl-pink">https://你的用户名.github.io</span>，然后<span class="hl">全世界任何人</span>都能用浏览器打开它。</p>
-      <p style="color:var(--dim)">💡 打个比方：你做了一张海报，GitHub Pages 就是那面免费、24 小时开放、全球可见的「公告墙」，帮你把海报贴出去。</p>
-      <div class="chips">
-        <span class="chip"># 免费</span>
-        <span class="chip"># 不用买服务器</span>
-        <span class="chip"># 自带网址</span>
-        <span class="chip"># 适合静态网页</span>
+<main>
+  <!-- 左：表单 -->
+  <div class="card">
+    <h2><svg class="ic"><use href="#i-gear"></use></svg>配置</h2>
+
+    <div class="row">
+      <label>项目档案</label>
+      <div class="pathrow">
+        <select id="projSel"></select>
+        <button class="btn" onclick="newProject()">新建</button>
+        <button class="btn" onclick="saveConfig()">保存</button>
+      </div>
+      <div class="hint">换项目只需切换/新建档案并选择对应文件夹，流程不变。</div>
+    </div>
+
+    <div class="row">
+      <label>平台</label>
+      <div class="seg" id="segPlatform">
+        <button data-v="android" class="active" onclick="setPlatform(&#39;android&#39;)">Android</button>
+        <button data-v="ios" onclick="setPlatform(&#39;ios&#39;)">iOS</button>
       </div>
     </div>
-  </div>
-</section>
 
-<section>
-  <div class="wrap reveal">
-    <div class="eyebrow">02 / 能做什么</div>
-    <h2>它能帮你<b>上线这些东西</b></h2>
-    <p class="lead">只要是「网页」，基本都能放上去。下面这些都是同事们常见的玩法 —— 鼠标放上去看看 ✨</p>
-    <div class="grid-cards">
-      <div class="ccard"><div class="ic">🪪</div><h3>个人主页 / 简历</h3><p>一个属于你的网址，发给别人很有面子</p></div>
-      <div class="ccard"><div class="ic">📚</div><h3>项目文档站</h3><p>给团队产品做一套在线说明书</p></div>
-      <div class="ccard"><div class="ic">✍️</div><h3>博客</h3><p>写点技术或生活，公开发表</p></div>
-      <div class="ccard"><div class="ic">🎨</div><h3>作品集</h3><p>设计、摄影、代码 demo 一站展示</p></div>
-      <div class="ccard"><div class="ic">🎮</div><h3>小游戏 / 小工具</h3><p>纯前端的小应用，链接一发就能玩</p></div>
-      <div class="ccard"><div class="ic">🚀</div><h3>活动落地页</h3><p>发布会、报名页、邀请函都行</p></div>
+    <div class="row">
+      <label>项目名称</label>
+      <input type="text" id="name" oninput="nameCustomized=true" placeholder="默认取 Unity 工程文件夹名；可自定义">
     </div>
-    <p class="lead" style="margin-top:24px">🤫 偷偷告诉你：<b style="color:var(--cyan)">你现在看的这个页面，本身就是一个能放上 GitHub Pages 的单文件网页。</b></p>
-  </div>
-</section>
 
-<section>
-  <div class="wrap reveal">
-    <div class="eyebrow">03 / 怎么用</div>
-    <h2>三步，<b>把它搬上网</b></h2>
-    <p class="lead">全程在网页上点点鼠标就行，<b style="color:var(--green)">不需要懂命令行</b>。点开每一步看看 👇</p>
-    <div class="steps" id="steps">
+    <div class="row">
+      <label>Unity 工程文件夹</label>
+      <div class="pathrow"><input type="text" id="unityProject" onchange="afterPick(&#39;unityProject&#39;,this.value)" placeholder="选择 Unity 工程根目录">
+        <button class="btn" onclick="pick(&#39;unityProject&#39;,false)">选择</button></div>
+    </div>
 
-      <div class="step">
-        <div class="step-head"><div class="step-num">1</div><h3>注册 GitHub，新建一个仓库</h3><div class="arr">›</div></div>
-        <div class="step-body">
-          <p>打开 <code class="kbd">github.com</code> 注册一个免费账号（已有就直接登录）。</p>
-          <p>点右上角 <code class="kbd">+</code> → <code class="kbd">New repository</code> 新建一个「仓库」（Repository，可以理解成一个项目文件夹）。</p>
-          <p class="note">想要最干净的网址，就把仓库名起成 <span class="hl-pink">你的用户名.github.io</span>（比如用户名是 <code class="kbd">amy</code>，就叫 <code class="kbd">amy.github.io</code>）。记得勾选 <code class="kbd">Public</code>。</p>
+    <div class="row androidOnly">
+      <label>Android Studio 模板工程（APK 母包）</label>
+      <div class="pathrow"><input type="text" id="templateRoot" placeholder="选择 APK 母包工程目录">
+        <button class="btn" onclick="pick(&#39;templateRoot&#39;,false)">选择</button></div>
+    </div>
+
+    <div class="row androidOnly">
+      <label>AAB 母包（可选，不填则出 AAB 时复用 APK 母包）</label>
+      <div class="pathrow"><input type="text" id="templateRootAab" placeholder="选择 AAB 母包工程目录（可空）">
+        <button class="btn" onclick="pick(&#39;templateRootAab&#39;,false)">选择</button></div>
+    </div>
+
+    <div class="row androidOnly">
+      <label>Unity 导出方法 exportMethod（留空则用工具内置注入式导出）</label>
+      <input type="text" id="exportMethod" placeholder="BuildTools.PerformBuildAndroid">
+    </div>
+
+    <div class="row iosOnly" style="display:none">
+      <label>iOS 模板 Xcode 工程（壳工程，含 *.xcodeproj）</label>
+      <div class="pathrow"><input type="text" id="iosTemplateRoot" placeholder="选择 iOS 模板壳工程目录">
+        <button class="btn" onclick="pick(&#39;iosTemplateRoot&#39;,false)">选择</button></div>
+    </div>
+    <div class="row iosOnly" style="display:none">
+      <label>iOS 导出方法（项目自带，如 BuildTools.PerformBuildIOS）</label>
+      <input type="text" id="iosExportMethod" placeholder="BuildTools.PerformBuildIOS">
+      <div class="hint">有 Addressables / 远程资源的项目<b>必须</b>填项目自带导出方法，并在 Unity 的 iOS 平台定义 AUTO_BUILD_IOS 宏；留空走的注入式导出不配置 Addressables，会失败。</div>
+    </div>
+    <div class="row iosOnly" style="display:none">
+      <label>已导出 Xcode 工程（可选；从「替换」开始、跳过自动导出时填）</label>
+      <div class="pathrow"><input type="text" id="iosExportRoot" placeholder="留空＝由工具自动从 Unity 导出">
+        <button class="btn" onclick="pick(&#39;iosExportRoot&#39;,false)">选择</button></div>
+    </div>
+    <div class="row iosOnly" style="display:none">
+      <label>scheme（留空＝自动探测）</label>
+      <input type="text" id="iosScheme" placeholder="留空自动探测（通常等于工程名）">
+    </div>
+
+    <h2 style="margin-top:24px"><svg class="ic"><use href="#i-folder"></use></svg>环境路径</h2>
+    <div class="row">
+      <label>Unity 可执行文件（macOS 直接选 Unity.app 即可）</label>
+      <div class="pathrow"><input type="text" id="unityPath" onchange="afterPick(&#39;unityPath&#39;,this.value)" placeholder="选择 Unity.app 或可执行文件">
+        <button class="btn" onclick="pick(&#39;unityPath&#39;,true,true)">选择</button></div>
+    </div>
+    <div class="grid2 androidOnly">
+      <div class="row"><label>Android SDK（留空＝用 Unity 自带）<span class="auto-badge">自动推断，可改</span></label>
+        <div class="pathrow"><input type="text" id="androidSdkPath" oninput="clearAuto(this)" placeholder="留空自动使用 Unity 自带 SDK" class="autofilled" title="自动推断（可直接修改覆盖）：/Applications/Unity/Hub/Editor/2022.3.62f3/PlaybackEngines/AndroidPlayer/SDK">
+          <button class="btn" onclick="pick(&#39;androidSdkPath&#39;,false)">选择</button></div></div>
+      <div class="row"><label>Android NDK（留空＝用 Unity 自带）<span class="auto-badge">自动推断，可改</span></label>
+        <div class="pathrow"><input type="text" id="androidNdkPath" oninput="clearAuto(this)" placeholder="留空自动使用 Unity 自带 NDK" class="autofilled" title="自动推断（可直接修改覆盖）：/Applications/Unity/Hub/Editor/2022.3.62f3/PlaybackEngines/AndroidPlayer/NDK">
+          <button class="btn" onclick="pick(&#39;androidNdkPath&#39;,false)">选择</button></div></div>
+    </div>
+    <div class="row androidOnly"><label>JDK（留空＝优先 Android Studio 的 jbr=JDK17，无则 Unity 自带）<span class="auto-badge">自动关联 Android Studio JDK，可改</span></label>
+      <div class="pathrow"><input type="text" id="javaHome" oninput="clearAuto(this)" placeholder="留空优先用 Android Studio jbr(JDK17)，没有才回退 Unity 自带" class="autofilled" title="自动推断（可直接修改覆盖）：/Applications/Android Studio.app/Contents/jbr/Contents/Home">
+        <button class="btn" onclick="pick(&#39;javaHome&#39;,false)">选择</button></div></div>
+    <div class="row androidOnly"><label>HTTP 代理（仅 Gradle 下依赖用；国内常需要，不需要就留空）</label>
+      <div class="pathrow"><input type="text" id="proxy" placeholder="例如 127.0.0.1:7890；不确定可点「检测」或留空">
+        <button class="btn" onclick="detectProxy()">检测</button></div>
+      <div class="hint">仅当 Gradle 下载依赖卡住/失败时才需要。点「检测」从系统代理自动填入；留空＝直连。iOS 出包用不到代理。</div></div>
+
+    <h2 style="margin-top:24px"><svg class="ic"><use href="#i-box"></use></svg>构建参数</h2>
+    <div class="grid2">
+      <div class="row"><label>应用名称</label><input type="text" id="appName" placeholder="Screw Sort 3D"></div>
+      <div class="row"><label>包名 applicationId</label><input type="text" id="applicationId" placeholder="screw.sort.match.jam.puzzle"></div>
+    </div>
+	    <div class="grid2">
+	      <div class="row"><label>版本名 versionName</label><input type="text" id="versionName" placeholder="1.0640"></div>
+	      <div class="row androidOnly"><label>版本号 versionCode</label><input type="number" id="versionCode" placeholder="10640"></div>
+	      <div class="row iosOnly" style="display:none"><label>构建号（CFBundleVersion）</label><input type="text" id="iosBuildNumber" placeholder="例如 5 或 5.1"></div>
+	    </div>
+	    <div class="row">
+	      <label>Addressables 资源位置</label>
+	      <div class="seg" id="segResourceMode">
+	        <button type="button" data-v="local" class="" onclick="setResourceMode(&#39;local&#39;)">包内资源</button>
+	        <button type="button" data-v="cdn" onclick="setResourceMode(&#39;cdn&#39;)" class="active">CDN 资源</button>
+	      </div>
+	      <div class="hint">包内资源不会传 CDN 路径；CDN 资源会让 Unity 导出 Addressables 到下面填写的完整路径。</div>
+	    </div>
+	    <div id="cdnResourceBox" class="row" style="display: block;">
+	      <label>CDN Remote.BuildPath 完整路径</label>
+	      <input type="text" id="resourceCdnBuildPath" placeholder="例如 cdnlevels/v4p3/[BuildTarget] 或 games/demo/v1/[BuildTarget]">
+	      <div class="hint">这是 Addressables 的本地输出路径；建议保留 [BuildTarget]，方便同一规则兼容 iOS/Android。</div>
+	      <div style="height:8px"></div>
+	      <label>CDN Remote.LoadPath（可选）</label>
+	      <input type="text" id="resourceCdnLoadPath" placeholder="留空＝沿用 Unity 当前 Remote.LoadPath；需要完整 URL 时可填写">
+	      <div class="hint">如果运行时 CDN URL 也要跟随本次构建变化，在这里填完整加载地址。</div>
+	    </div>
+	    <div class="grid2 androidOnly">
+      <div class="row"><label>构建目标</label>
+        <div class="seg" id="segType">
+          <button data-v="debug" class="active" onclick="setSeg(&#39;segType&#39;,this)">测试包 (debug APK)</button>
+          <button data-v="release" onclick="setSeg(&#39;segType&#39;,this)">正式包 (release AAB)</button>
         </div>
       </div>
-
-      <div class="step">
-        <div class="step-head"><div class="step-num">2</div><h3>把网页文件传上去</h3><div class="arr">›</div></div>
-        <div class="step-body">
-          <p>进入刚建好的仓库，点 <code class="kbd">Add file</code> → <code class="kbd">Upload files</code>。</p>
-          <p>把你的网页文件（至少要有一个 <code class="kbd">index.html</code>）<b style="color:var(--cyan)">直接拖进去</b>，然后点下方的 <code class="kbd">Commit changes</code> 保存。</p>
-          <p class="note">首页文件必须叫 <code class="kbd">index.html</code> —— 这是网站的「大门」，浏览器默认先找它。</p>
+      <div class="row" style="display:none"><label>输出格式</label>
+        <div class="seg" id="segFmt">
+          <button data-v="apk" class="active" onclick="setSeg(&#39;segFmt&#39;,this)">APK</button>
+          <button data-v="aab" onclick="setSeg(&#39;segFmt&#39;,this)">AAB</button>
         </div>
       </div>
-
-      <div class="step">
-        <div class="step-head"><div class="step-num">3</div><h3>打开 Pages 开关</h3><div class="arr">›</div></div>
-        <div class="step-body">
-          <p>在仓库里点 <code class="kbd">Settings</code> → 左侧菜单 <code class="kbd">Pages</code>。</p>
-          <p>在 <code class="kbd">Branch</code> 处选 <code class="kbd">main</code>，文件夹保持 <code class="kbd">/ (root)</code>，点 <code class="kbd">Save</code>。</p>
-          <p>等 1～2 分钟，刷新页面，上方会出现你的网址 <span class="hl-pink">https://用户名.github.io</span> —— 点开，<b style="color:var(--green)">你的网站上线啦！🎉</b></p>
-        </div>
+    </div>
+    <div class="row androidOnly">
+      <label>SDK 模式（IS_PRO_MODE）</label>
+      <div class="seg" id="segAndroidSdkMode">
+        <button type="button" data-v="auto" class="active" onclick="setAndroidSdkMode(&#39;auto&#39;)">自动</button>
+        <button type="button" data-v="debug" onclick="setAndroidSdkMode(&#39;debug&#39;)">测试模式</button>
+        <button type="button" data-v="pro" onclick="setAndroidSdkMode(&#39;pro&#39;)">正式模式</button>
       </div>
+      <div class="hint">自动：debug 保留 `IS_PRO_MODE = false;`，release/AAB 注释该行；强制模式用于临时覆盖。</div>
+    </div>
+    <div class="row iosOnly" style="display:none"><label>导出 IPA 类型（可多选，archive 一次、按勾选各出一个 ipa）</label>
+      <div class="seg" id="segIosMethods">
+        <button type="button" data-v="adhoc" class="active" onclick="toggleSeg(&#39;segIosMethods&#39;,this)">AdHoc（测试包）</button>
+        <button type="button" data-v="appstore" onclick="toggleSeg(&#39;segIosMethods&#39;,this)" class="active">AppStore（正式包）</button>
+      </div>
+    </div>
+    <div class="row iosOnly" style="display:none">
+      <label><input type="checkbox" id="iosExportDsyms" checked=""> 导出 dSYMs 符号表</label>
+      <div class="hint">仅在导出 AppStore 包时生效；会把本次 archive 内的 dSYMs 压缩成 zip，放到 IPA 同一目录。</div>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="hideUnitySplash"> 关闭 Unity Splash</label>
+      <div class="hint">可用于任意测试包或正式包；默认测试包保留、正式包关闭。关闭时构建机需要有效 Unity 付费授权，否则 Unity 导出会中止并提示授权问题。</div>
+    </div>
+    <div class="row"><label>输出目录</label>
+      <div class="pathrow"><input type="text" id="outputDir" placeholder="产物输出目录">
+        <button class="btn" onclick="pick(&#39;outputDir&#39;,false)">选择</button></div></div>
 
+    <!-- 签名区：仅 release 显示 -->
+    <div id="signBox" style="display:none">
+      <h2 style="margin-top:6px"><svg class="ic"><use href="#i-key"></use></svg>签名（release）</h2>
+      <div class="row"><label>keystore 文件</label>
+        <div class="pathrow"><input type="text" id="keystore" placeholder="…/xzgs_keystore.jks">
+          <button class="btn" onclick="pick(&#39;keystore&#39;,true)">选择</button></div></div>
+      <div class="grid2">
+        <div class="row"><label>别名 keyAlias</label><input type="text" id="keyAlias"></div>
+        <div class="row"><label>keystore 口令</label><input type="text" id="storePw" placeholder="仅本次构建用，不保存"></div>
+      </div>
+      <div class="row"><label>key 口令（留空=同 keystore 口令）</label><input type="text" id="keyPw" placeholder="仅本次构建用，不保存"></div>
+    </div>
+
+    <!-- iOS 导出签名：用现成两份 ExportOptions.plist（按勾选的类型使用对应一份）-->
+    <div id="iosSignBox" class="iosOnly" style="display:none">
+      <h2 style="margin-top:6px"><svg class="ic"><use href="#i-key"></use></svg>iOS 导出签名（描述文件 / ExportOptions）</h2>
+      <div class="row"><label>ad-hoc 描述文件(.mobileprovision) 或 ExportOptions.plist</label>
+        <div class="pathrow"><input type="text" id="iosExportOptionsAdhoc" placeholder="选 ad-hoc 的 .mobileprovision（推荐）或 .plist">
+          <button class="btn" onclick="pick(&#39;iosExportOptionsAdhoc&#39;,true)">选择</button></div></div>
+      <div class="row"><label>app-store 描述文件(.mobileprovision) 或 ExportOptions.plist</label>
+        <div class="pathrow"><input type="text" id="iosExportOptionsAppstore" placeholder="选 app-store 的 .mobileprovision（推荐）或 .plist">
+          <button class="btn" onclick="pick(&#39;iosExportOptionsAppstore&#39;,true)">选择</button></div></div>
+      <div class="hint">填 <b>.mobileprovision</b> 即可——工具会自动解析 teamID/bundle/UUID、安装描述文件并生成 ExportOptions.plist；也可直接填现成的 ExportOptions.plist。签名证书需已在本机钥匙串。</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn ghost" id="btnDoctor" onclick="run(&#39;doctor&#39;)"><svg class="ic"><use href="#i-activity"></use></svg>环境体检</button>
+      <button class="btn brand" id="btnBuild" onclick="run(&#39;build&#39;)"><svg class="ic"><use href="#i-play"></use></svg>一键构建</button>
+    </div>
+    <div class="hint androidOnly" style="margin-top:8px">高级（分步验证）：从
+      <select id="startStep" style="width:auto;display:inline-block">
+        <option>export</option><option>so</option><option>replace</option><option>inject</option><option>build</option><option>sign</option>
+      </select> 到
+      <select id="stopStep" style="width:auto;display:inline-block">
+        <option>export</option><option>so</option><option>replace</option><option>inject</option><option>build</option><option selected="">sign</option>
+      </select>
+    </div>
+    <div class="hint iosOnly" style="margin-top:8px;display:none">高级（分步验证）：从
+      <select id="iosStartStep" style="width:auto;display:inline-block">
+        <option>export</option><option>replace</option><option>inject</option><option>archive</option><option>exportipa</option>
+      </select> 到
+      <select id="iosStopStep" style="width:auto;display:inline-block">
+        <option>export</option><option>replace</option><option>inject</option><option>archive</option><option selected="">exportipa</option>
+      </select>
     </div>
   </div>
-</section>
 
-<section>
-  <div class="wrap reveal">
-    <div class="eyebrow">04 / 互动彩蛋</div>
-    <h2>来，<b>亲手「部署」一次</b></h2>
-    <p class="lead">下面是一个小模拟。点一下按钮，看看你把网页上传后，GitHub 在后台帮你做了些什么 👇</p>
-    <div class="term">
-      <div class="term-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="term-title">deploy.sh — github-pages</span></div>
-      <div class="term-body" id="termOut"><span class="l c-dim">$ 点击下方按钮开始部署模拟...</span></div>
-    </div>
-    <button class="btn" id="deployBtn">▸ 开始部署</button>
-  </div>
-</section>
-
-<section>
-  <div class="wrap reveal">
-    <div class="eyebrow">05 / 常见问题</div>
-    <h2>新手<b>最常问的</b></h2>
-    <div class="faq">
-      <div class="q"><b>Q：真的不要钱吗？</b><span>个人公开项目完全免费，GitHub 不收托管费、不收流量费，足够日常使用。</span></div>
-      <div class="q"><b>Q：网址多久才能打开？</b><span>第一次开启后通常等 1～5 分钟。之后每次更新文件，几十秒到几分钟内自动刷新。</span></div>
-      <div class="q"><b>Q：能放视频、做后台、连数据库吗？</b><span>它只托管「静态网页」（HTML/CSS/JS、图片等）。需要后端逻辑或数据库的功能它做不了，但纯前端页面绰绰有余。</span></div>
-      <div class="q"><b>Q：首页文件一定要叫 index.html 吗？</b><span>是的，根目录的首页请命名为 index.html，否则打开网址会显示 404。</span></div>
-      <div class="q"><b>Q：可以用自己的域名吗？</b><span>可以。Pages 设置里有 Custom domain，绑定你买的域名即可，进阶玩法，暂时不绑也完全没问题。</span></div>
+  <!-- 右：日志 -->
+  <div class="card">
+    <h2 style="display:flex;justify-content:space-between;align-items:center">
+      <span style="display:inline-flex;align-items:center;gap:7px"><svg class="ic" style="color:var(--brand)"><use href="#i-terminal"></use></svg>实时日志</span><span id="badge" class="badge">就绪</span>
+    </h2>
+    <div class="console-wrap">
+      <div class="console-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <button type="button" class="barbtn" onclick="copyLog(this)" title="复制全部日志到剪贴板"><svg class="ic"><use href="#i-copy"></use></svg><span>复制</span></button>
+        <button type="button" class="barbtn" onclick="downloadLog(this)" title="下载日志为 .txt 文本"><svg class="ic"><use href="#i-download"></use></svg><span>下载</span></button>
+      </div>
+      <div id="console" class="console"></div>
     </div>
   </div>
-</section>
+</main>
 
-<footer>
-  <div class="wrap">
-    <div class="big">✦ 现在，轮到你了 ✦</div>
-    <p class="lead" style="margin:0 auto">把这个文件存成 <code class="kbd">index.html</code>，按上面三步传上去 —— 你的第一个网站就上线了。</p>
-    <p class="meta" style="margin-top:18px">made with 💖 + 霓虹 // 一个单文件 HTML，本身就能跑在 GitHub Pages 上</p>
-    <p class="easter" id="hint">心情好的话，试试键盘上的 ↑↑↓↓←→←→BA</p>
+<!-- 文件夹/文件选择器 -->
+<div id="mask">
+  <div id="picker">
+    <div class="top">
+      <strong id="pkTitle">选择文件夹</strong>
+      <div class="cur" id="pkCur"></div>
+    </div>
+    <div class="list" id="pkList"></div>
+    <div class="bottom">
+      <button class="btn" onclick="pkUp()">⬆ 上级</button>
+      <div style="flex:1"></div>
+      <button class="btn ghost" onclick="closePicker()">取消</button>
+      <button class="btn brand" id="pkChoose" onclick="pkChooseDir()">选择此文件夹</button>
+    </div>
   </div>
-</footer>
-
-<div id="toast">🌈 彩蛋激活！你已经是 GitHub Pages 高手了！</div>
+</div>
 
 <script>
-/* ---- typing line in hero ---- */
-(function(){
-  var lines=["> 准备把网页搬上互联网...","> 不用服务器，不用花钱","> 跟着往下滑，3 步就能上线 ✓"];
-  var el=document.getElementById('typed'),cur=el.querySelector('.cur');
-  var li=0,ci=0;
-  function tick(){
-    var t=lines[li];
-    if(ci<=t.length){ el.textContent=t.slice(0,ci); el.appendChild(cur); ci++; setTimeout(tick,55); }
-    else { setTimeout(function(){ li=(li+1)%lines.length; ci=0; tick(); },1600); }
-  }
-  tick();
-})();
+const $ = id => document.getElementById(id);
+let CONFIG = {env:{}, projects:[], build:{}};
+let pollTimer = null, since = 0;
+let nameCustomized = false;
+let unitySplashUserSet = false;
 
-/* ---- scroll reveal ---- */
-(function(){
-  var obs=new IntersectionObserver(function(es){
-    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target);} });
-  },{threshold:.15});
-  document.querySelectorAll('.reveal').forEach(function(n){obs.observe(n)});
-})();
-
-/* ---- accordion steps ---- */
-document.querySelectorAll('#steps .step').forEach(function(step){
-  step.querySelector('.step-head').addEventListener('click',function(){
-    step.classList.toggle('open');
+// ---------- 配置加载/填充 ----------
+async function loadConfig(){
+  CONFIG = await (await fetch('/api/config')).json();
+  const sel = $('projSel'); sel.innerHTML='';
+  (CONFIG.projects||[]).forEach((p,i)=>{
+    const o=document.createElement('option'); o.value=i; o.textContent=p.name||('项目'+i); sel.appendChild(o);
   });
-});
-/* open first by default */
-var first=document.querySelector('#steps .step'); if(first) first.classList.add('open');
+  sel.onchange=()=>fillProject(+sel.value);
+  // 环境（全局）
+  const env = CONFIG.env||{};
+  const uv = env.unityVersions||{};
+  $('unityPath').value = Object.values(uv)[0]||'';
+  $('androidSdkPath').value = env.androidSdkPath||'';
+  $('androidNdkPath').value = env.androidNdkPath||'';
+  $('javaHome').value = env.javaHome||'';
+  $('proxy').value = env.proxy||'';
+  if((CONFIG.projects||[]).length){ fillProject(0); }
+  // 全局 build 默认
+  const b = CONFIG.build||{};
+  if(b.appName) $('appName').value=b.appName;
+  if(b.applicationId) $('applicationId').value=b.applicationId;
+	  if(b.versionName) $('versionName').value=b.versionName;
+	  if(b.versionCode) $('versionCode').value=b.versionCode;
+	  const resourceMode = normalizeResourceMode(b.resourceDeliveryMode,b.resourceCdnBuildPath,b.resourceVersion);
+	  setSegVal('segResourceMode',resourceMode);
+	  if(b.resourceCdnBuildPath) $('resourceCdnBuildPath').value=b.resourceCdnBuildPath;
+	  else if(b.resourceVersion) $('resourceCdnBuildPath').value=legacyCdnPathFromVersion(b.resourceVersion);
+	  if(b.resourceCdnLoadPath) $('resourceCdnLoadPath').value=b.resourceCdnLoadPath;
+	  toggleResourceBox();
+	  if(b.outputDir) $('outputDir').value=b.outputDir;
+  if(b.iosBuildNumber) $('iosBuildNumber').value=b.iosBuildNumber;
+  if(b.iosAdhoc!=null) setSegOn('segIosMethods','adhoc',b.iosAdhoc);
+  if(b.iosAppstore!=null) setSegOn('segIosMethods','appstore',b.iosAppstore);
+  if(b.iosExportDsyms!=null) $('iosExportDsyms').checked=!!b.iosExportDsyms;
+  if(b.buildType) setSegVal('segType',b.buildType);
+  if(b.outputFormat) setSegVal('segFmt',b.outputFormat);
+  setAndroidSdkMode(b.androidSdkMode||'auto',false);
+  if(b.hideUnitySplash!=null){
+    setUnitySplashValue(!!b.hideUnitySplash,true);
+  } else if(b.hideUnitySplashForFormal===false){
+    setUnitySplashValue(false,true);
+  } else {
+    unitySplashUserSet=false;
+    applyUnitySplashDefault(true);
+  }
+  setPlatform(platform());
+}
+function fillProject(i){
+  const p=(CONFIG.projects||[])[i]; if(!p) return;
+  $('projSel').value=i;
+  $('name').value=p.name||'';
+  $('unityProject').value=p.unityProject||'';
+  $('templateRoot').value=p.templateRoot||'';
+  $('templateRootAab').value=p.templateRootAab||'';
+  $('exportMethod').value=p.exportMethod||'';
+  const s=p.signing||{};
+  $('keystore').value=s.keystore||''; $('keyAlias').value=s.keyAlias||'';
+  $('iosTemplateRoot').value=p.iosTemplateRoot||'';
+  $('iosScheme').value=p.iosScheme||'';
+  $('iosExportMethod').value=p.iosExportMethod||'';
+  $('iosExportRoot').value=p.iosExportRoot||'';
+  $('iosExportOptionsAdhoc').value=p.iosExportOptionsAdhoc||'';
+  $('iosExportOptionsAppstore').value=p.iosExportOptionsAppstore||'';
+  const nm=$('name').value.trim();
+  if((!nm || nm==='未命名' || nm==='未命名项目') && $('unityProject').value){
+    $('name').value = baseName($('unityProject').value); nameCustomized=false;
+  } else { nameCustomized = !!nm; }
+  setPlatform(p.platform||'android');
+}
+function newProject(){
+  nameCustomized=false;
+  $('projSel').value=''; $('name').value=''; $('unityProject').value='';
+  $('templateRoot').value=''; $('templateRootAab').value=''; $('exportMethod').value='BuildTools.PerformBuildAndroid';
+  $('keystore').value=''; $('keyAlias').value='';
+  $('iosTemplateRoot').value=''; $('iosScheme').value='';
+  $('iosExportMethod').value='BuildTools.PerformBuildIOS'; $('iosExportRoot').value='';
+  $('iosExportOptionsAdhoc').value=''; $('iosExportOptionsAppstore').value='';
+  $('iosExportDsyms').checked=true;
+  setAndroidSdkMode('auto',false);
+}
 
-/* ---- deploy simulator ---- */
-(function(){
-  var btn=document.getElementById('deployBtn'),out=document.getElementById('termOut');
-  var running=false;
-  var seq=[
-    {t:'$ git push origin main',c:''},
-    {t:'Enumerating objects: 6, done.',c:'c-dim'},
-    {t:'✓ 文件已上传到 GitHub',c:'c-cyan'},
-    {t:'',c:'',bar:true},
-    {t:'⚙ GitHub Pages 正在构建你的网站...',c:'c-yellow'},
-    {t:'✓ 构建完成 build: success',c:''},
-    {t:'🌐 正在分发到全球 CDN 节点...',c:'c-cyan'},
-    {t:'',c:'',delay:400},
-    {t:'★ 上线成功！你的网站现在全世界都能访问：',c:'c-pink'},
-    {t:'   https://你的用户名.github.io',c:'c-cyan'},
-    {t:'',c:''},
-    {t:'$ 恭喜，这就是 GitHub Pages 做的全部事情 ✓',c:'c-dim'}
-  ];
-  function line(item){
-    if(item.bar){
-      var wrap=document.createElement('div');wrap.className='l';wrap.innerHTML='<div class="bar"><i></i></div>';
-      out.appendChild(wrap);
-      var fill=wrap.querySelector('i'),w=0;
-      var iv=setInterval(function(){w+=4;fill.style.width=Math.min(w,100)+'%';if(w>=100)clearInterval(iv);},22);
-      return 700;
+// ---------- 表单 → payload ----------
+function seg(id){ return $(id).querySelector('button.active').dataset.v; }
+function setSeg(id,btn){ $(id).querySelectorAll('button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); if(id==='segType'){ toggleSign(); setSegVal('segFmt', btn.dataset.v==='release'?'aab':'apk'); applyUnitySplashDefault(); } saveForm(); }
+function setSegVal(id,v){ $(id).querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.v===v)); }
+function setAndroidSdkMode(mode,save=true){
+  const v=['auto','debug','pro'].includes(mode) ? mode : 'auto';
+  setSegVal('segAndroidSdkMode',v);
+  if(save) saveForm();
+}
+function normalizeResourceMode(mode,cdnPath,legacyVersion){
+  if(mode==='local' || mode==='cdn') return mode;
+  return cdnPath||legacyVersion ? 'cdn':'local';
+}
+function legacyCdnPathFromVersion(version){
+  const v=(version||'').trim().replace(/^\/+|\/+$/g,'');
+  return v ? `cdnlevels/${v}/[BuildTarget]` : '';
+}
+function legacyVersionFromCdnPath(path){
+  const parts=(path||'').trim().replace(/^\/+|\/+$/g,'').split('/').filter(Boolean);
+  for(let i=parts.length-1;i>0;i--){
+    if(parts[i]==='[BuildTarget]' || /^ios$/i.test(parts[i]) || /^android$/i.test(parts[i])) return parts[i-1];
+  }
+  return '';
+}
+// 多选分段（视觉同 Android 的 seg，但可同时高亮多个 —— 用于 iOS 导出类型）
+function toggleSeg(id,btn){ btn.classList.toggle('active'); if(id==='segIosMethods') applyUnitySplashDefault(); saveForm(); }
+function segOn(id,v){ const b=$(id).querySelector('button[data-v="'+v+'"]'); return !!(b && b.classList.contains('active')); }
+function setSegOn(id,v,on){ const b=$(id).querySelector('button[data-v="'+v+'"]'); if(b) b.classList.toggle('active',!!on); }
+function toggleSign(){ $('signBox').style.display = seg('segType')==='release' ? 'block':'none'; }
+function resourceMode(){ return seg('segResourceMode'); }
+function setResourceMode(mode){ setSegVal('segResourceMode',mode); toggleResourceBox(); saveForm(); }
+function toggleResourceBox(){ $('cdnResourceBox').style.display = resourceMode()==='cdn' ? 'block':'none'; }
+function resourceCdnBuildPath(){ return resourceMode()==='cdn' ? $('resourceCdnBuildPath').value.trim() : ''; }
+function resourceCdnLoadPath(){ return resourceMode()==='cdn' ? $('resourceCdnLoadPath').value.trim() : ''; }
+function legacyResourceVersion(){ return resourceMode()==='cdn' ? legacyVersionFromCdnPath($('resourceCdnBuildPath').value) : ''; }
+function platform(){ const a=$('segPlatform').querySelector('button.active'); return a?a.dataset.v:'android'; }
+function defaultHideUnitySplash(){ return platform()==='ios' ? segOn('segIosMethods','appstore') : seg('segType')==='release'; }
+function setUnitySplashValue(value,explicit){ $('hideUnitySplash').checked=!!value; unitySplashUserSet=!!explicit; }
+function applyUnitySplashDefault(force=false){ if(force || !unitySplashUserSet) $('hideUnitySplash').checked=defaultHideUnitySplash(); }
+function setPlatform(plat){
+  const isIos = plat==='ios';
+  setSegVal('segPlatform', plat);
+  document.querySelectorAll('.androidOnly').forEach(e=>{ e.style.display = isIos?'none':''; });
+  document.querySelectorAll('.iosOnly').forEach(e=>{ e.style.display = isIos?'':'none'; });
+  if(isIos){ $('signBox').style.display='none'; } else { toggleSign(); }
+  applyUnitySplashDefault();
+  saveForm();
+}
+
+function payload(mode){
+  const plat = platform();
+  const env={ unityVersions:{ "default": $('unityPath').value.trim() },
+    androidSdkPath:envVal('androidSdkPath'), androidNdkPath:envVal('androidNdkPath'),
+    javaHome:envVal('javaHome'), proxy:$('proxy').value.trim() };
+  const project={ name:$('name').value.trim()||'未命名', platform:plat,
+    unityProject:$('unityProject').value.trim(), templateRoot:$('templateRoot').value.trim(),
+    templateRootAab:$('templateRootAab').value.trim(), exportMethod:$('exportMethod').value.trim(),
+    signing:{ mode: seg('segType')==='release'?'tool':'debug',
+      keystore:$('keystore').value.trim(), keyAlias:$('keyAlias').value.trim(),
+      storePasswordRef: $('storePw').value? ('lit:'+$('storePw').value):'',
+      keyPasswordRef: $('keyPw').value? ('lit:'+$('keyPw').value):'' },
+    iosTemplateRoot:$('iosTemplateRoot').value.trim(), iosScheme:$('iosScheme').value.trim(),
+    iosExportMethod:$('iosExportMethod').value.trim(), iosExportRoot:$('iosExportRoot').value.trim(),
+    iosExportOptionsAdhoc:$('iosExportOptionsAdhoc').value.trim(),
+    iosExportOptionsAppstore:$('iosExportOptionsAppstore').value.trim() };
+		  const build={ appName:$('appName').value.trim(), applicationId:$('applicationId').value.trim(),
+		    versionName:$('versionName').value.trim(), versionCode:parseInt($('versionCode').value||'0',10),
+		    resourceVersion:legacyResourceVersion(), resourceDeliveryMode:resourceMode(),
+		    resourceCdnBuildPath:resourceCdnBuildPath(), resourceCdnLoadPath:resourceCdnLoadPath(),
+		    outputDir:$('outputDir').value.trim(), buildType:seg('segType'), outputFormat:seg('segFmt'),
+		    androidSdkMode:seg('segAndroidSdkMode'),
+		    hideUnitySplash:$('hideUnitySplash').checked,
+		    iosBuildNumber:$('iosBuildNumber').value.trim(), iosAdhoc:segOn('segIosMethods','adhoc'),
+		    iosAppstore:segOn('segIosMethods','appstore'), iosExportDsyms:$('iosExportDsyms').checked };
+  const start = plat==='ios' ? $('iosStartStep').value : $('startStep').value;
+  const stop  = plat==='ios' ? $('iosStopStep').value  : $('stopStep').value;
+  return { env, project, build, mode, start, stop };
+}
+
+// ---------- 保存配置（不含口令）----------
+async function saveConfig(){
+  const env={ unityVersions:{ "default": $('unityPath').value.trim() },
+    androidSdkPath:envVal('androidSdkPath'), androidNdkPath:envVal('androidNdkPath'),
+    javaHome:envVal('javaHome'), proxy:$('proxy').value.trim() };
+  const proj={ name:$('name').value.trim()||'未命名', platform:platform(),
+    unityProject:$('unityProject').value.trim(), templateRoot:$('templateRoot').value.trim(),
+    templateRootAab:$('templateRootAab').value.trim(), exportMethod:$('exportMethod').value.trim(),
+    signing:{ mode:'tool', keystore:$('keystore').value.trim(), keyAlias:$('keyAlias').value.trim(),
+      storePasswordRef:'env:XZGS_STORE_PW', keyPasswordRef:'env:XZGS_KEY_PW' },
+    iosTemplateRoot:$('iosTemplateRoot').value.trim(), iosScheme:$('iosScheme').value.trim(),
+    iosExportMethod:$('iosExportMethod').value.trim(), iosExportRoot:$('iosExportRoot').value.trim(),
+    iosExportOptionsAdhoc:$('iosExportOptionsAdhoc').value.trim(),
+    iosExportOptionsAppstore:$('iosExportOptionsAppstore').value.trim() };
+  const projects = CONFIG.projects||[];
+  const idx = projects.findIndex(p=>p.name===proj.name);
+  if(idx>=0) projects[idx]=proj; else projects.push(proj);
+  CONFIG.env=env; CONFIG.projects=projects;
+		  CONFIG.build={ appName:$('appName').value.trim(), applicationId:$('applicationId').value.trim(),
+		    versionName:$('versionName').value.trim(), versionCode:parseInt($('versionCode').value||'0',10),
+		    resourceVersion:legacyResourceVersion(), resourceDeliveryMode:resourceMode(),
+		    resourceCdnBuildPath:resourceCdnBuildPath(), resourceCdnLoadPath:resourceCdnLoadPath(),
+		    outputDir:$('outputDir').value.trim(), buildType:seg('segType'), outputFormat:seg('segFmt'),
+		    androidSdkMode:seg('segAndroidSdkMode'),
+		    hideUnitySplash:$('hideUnitySplash').checked,
+		    iosBuildNumber:$('iosBuildNumber').value.trim(), iosAdhoc:segOn('segIosMethods','adhoc'),
+		    iosAppstore:segOn('segIosMethods','appstore'), iosExportDsyms:$('iosExportDsyms').checked };
+  await fetch('/api/config',{method:'POST',body:JSON.stringify(CONFIG)});
+  await loadConfig();
+  alert('已保存（口令不会写入配置；release 口令请用环境变量或构建时填写）');
+}
+
+// ---------- 运行构建/体检 ----------
+async function run(mode){
+  if(resourceMode()==='cdn' && !resourceCdnBuildPath()){
+    alert('选择 CDN 资源时，需要填写 CDN Remote.BuildPath 完整路径。');
+    return;
+  }
+  $('console').innerHTML=''; since=0;
+  setBadge('running');
+  $('btnBuild').disabled=true; $('btnDoctor').disabled=true;
+  await fetch('/api/build',{method:'POST',body:JSON.stringify(payload(mode))});
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer=setInterval(poll,800); poll();
+}
+async function poll(){
+  const r = await (await fetch('/api/job?since='+since)).json();
+  if(r.lines && r.lines.length){ r.lines.forEach(appendLine); since=r.next;
+    const c=$('console'); c.scrollTop=c.scrollHeight; }
+  if(r.state==='done'||r.state==='failed'){
+    clearInterval(pollTimer); pollTimer=null; setBadge(r.state);
+    $('btnBuild').disabled=false; $('btnDoctor').disabled=false;
+    if(r.state==='done'&&r.result) appendLine('[产物] '+r.result);
+  }
+}
+function appendLine(line){
+  const div=document.createElement('div');
+  if(line.includes('✅')) div.className='ok';
+  else if(line.includes('❌')) div.className='err';
+  else if(line.includes('⚠')) div.className='warn';
+  else if(line.includes('▶')) div.className='step';
+  div.textContent=line; $('console').appendChild(div);
+}
+function setBadge(s){
+  const b=$('badge'); b.className='badge '+(s==='running'?'running':s==='done'?'done':s==='failed'?'failed':'');
+  b.textContent={running:'构建中…',done:'完成',failed:'失败'}[s]||'就绪';
+}
+// ---------- 日志：复制 / 下载 ----------
+function logText(){
+  return Array.from($('console').children).map(d=>d.textContent).join('\n');
+}
+function flashBtn(btn,msg){
+  if(!btn) return;
+  const span=btn.querySelector('span'); if(!span) return;
+  const old=span.dataset.label||span.textContent;
+  span.dataset.label=old;
+  span.textContent=msg; btn.classList.add('copied');
+  clearTimeout(btn._flash);
+  btn._flash=setTimeout(()=>{ span.textContent=span.dataset.label; btn.classList.remove('copied'); },1200);
+}
+async function copyLog(btn){
+  const t=logText();
+  if(!t){ flashBtn(btn,'暂无日志'); return; }
+  try{
+    await navigator.clipboard.writeText(t);
+  }catch(e){   // 回退：非安全上下文或旧浏览器无 Clipboard API
+    const ta=document.createElement('textarea');
+    ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try{ document.execCommand('copy'); }catch(_){}
+    document.body.removeChild(ta);
+  }
+  flashBtn(btn,'已复制');
+}
+function downloadLog(btn){
+  const t=logText();
+  if(!t){ flashBtn(btn,'暂无日志'); return; }
+  const d=new Date();
+  const p=n=>String(n).padStart(2,'0');
+  const stamp=`${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+  const blob=new Blob([t],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='build-log-'+stamp+'.txt';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },0);
+}
+
+// ---------- 文件夹/文件选择器 ----------
+let pkInput=null, pkWantFiles=false, pkPath='', pkAppMode=false;
+async function pick(inputId, wantFiles, appMode){
+  pkInput=inputId; pkWantFiles=wantFiles; pkAppMode=!!appMode;
+  $('pkTitle').textContent = wantFiles?'选择文件':'选择文件夹';
+  $('pkChoose').style.display = wantFiles?'none':'inline-block';
+  const start = $(inputId).value.trim();
+  await pkLoad(start);
+  $('mask').style.display='flex';
+}
+async function pkLoad(path){
+  const r = await (await fetch('/api/browse?files='+(pkWantFiles?1:0)+'&path='+encodeURIComponent(path||''))).json();
+  pkPath=r.path; $('pkCur').textContent=r.path;
+  const list=$('pkList'); list.innerHTML='';
+  (r.dirs||[]).forEach(d=>{
+    const full=joinPath(r.path,d);
+    const el=document.createElement('div'); el.className='item';
+    if(pkAppMode && d.toLowerCase().endsWith('.app')){
+      el.textContent='📦 '+d+'（选择）'; el.onclick=()=>chooseApp(full);
+    } else {
+      el.textContent='📁 '+d; el.onclick=()=>pkLoad(full);
     }
-    var s=document.createElement('span');s.className='l '+(item.c||'');s.textContent=item.t||' ';
-    out.appendChild(s);out.scrollTop=out.scrollHeight;
-    return item.delay||320;
-  }
-  btn.addEventListener('click',function(){
-    if(running)return;running=true;btn.disabled=true;btn.textContent='部署中...';
-    out.innerHTML='';
-    var i=0;
-    (function step(){
-      if(i>=seq.length){running=false;btn.disabled=false;btn.textContent='▸ 再来一次';return;}
-      var d=line(seq[i]);i++;setTimeout(step,d);
-    })();
+    list.appendChild(el);
   });
-})();
+  if(pkWantFiles){ (r.files||[]).forEach(f=>{
+    const el=document.createElement('div'); el.className='item file'; el.textContent='📄 '+f;
+    el.onclick=()=>{ const v=joinPath(r.path,f); $(pkInput).value=v; afterPick(pkInput,v); saveForm(); closePicker(); }; list.appendChild(el);
+  });}
+}
+function joinPath(a,b){ return a.endsWith('/')? a+b : a+'/'+b; }
+function baseName(p){ return (p||'').replace(/[\/\\]+$/,'').split(/[\/\\]/).pop()||''; }
+function afterPick(inputId, value){
+  if(inputId==='unityPath'){ if(value) autodetectEnv(value); return; }
+  if(inputId!=='unityProject' || !value) return;
+  const cur=$('name').value.trim();
+  if(!nameCustomized || !cur || cur==='未命名' || cur==='未命名项目'){ $('name').value = baseName(value); }
+}
 
-/* ---- konami easter egg ---- */
-(function(){
-  var seq=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
-  var pos=0,toast=document.getElementById('toast');
-  document.addEventListener('keydown',function(e){
-    var k=e.key.length===1?e.key.toLowerCase():e.key;
-    if(k===seq[pos]){pos++;if(pos===seq.length){fire();pos=0;}}
-    else{pos=(k===seq[0])?1:0;}
+// ---------- 自动推断 Unity 自带 SDK/NDK/JDK（仅填空字段，标注“自动推断，可改”）----------
+function envVal(id){ const el=$(id); return el.classList.contains('autofilled') ? '' : el.value.trim(); }
+async function autodetectEnv(unityPath){
+  let d=null;
+  try{ d=await (await fetch('/api/autodetect?unity='+encodeURIComponent(unityPath))).json(); }catch(e){ return; }
+  if(!d) return;
+  [['androidSdkPath',d.sdk,'SDK'],['androidNdkPath',d.ndk,'NDK'],['javaHome',d.jdk,(d.jdkSource==='androidstudio'?'JDK-OK':'JDK')]].forEach(([id,val,kind])=>{
+    const el=$(id); if(!el || !val) return;
+    if(el.value.trim() && !el.classList.contains('autofilled')) return;  // 用户已手填则不动
+    el.value=val; markAuto(el,kind);
   });
-  function fire(){
-    toast.classList.add('show');
-    document.body.style.animation='hue 4s linear';
-    setTimeout(function(){toast.classList.remove('show');document.body.style.animation='';},4000);
-    confetti();
+  saveForm();
+}
+function markAuto(el,kind){
+  el.classList.add('autofilled');
+  el.title='自动推断（可直接修改覆盖）：'+el.value;
+  const label=el.closest('.row') && el.closest('.row').querySelector('label');
+  if(label && !label.querySelector('.auto-badge')){
+    const b=document.createElement('span');
+    if(kind==='JDK'){ b.className='auto-badge warn'; b.textContent='自动推断·Unity自带JDK11，构建AAB母包可能需JDK17'; }
+    else if(kind==='JDK-OK'){ b.className='auto-badge'; b.textContent='自动关联 Android Studio JDK，可改'; }
+    else { b.className='auto-badge'; b.textContent='自动推断，可改'; }
+    label.appendChild(b);
   }
-  function confetti(){
-    var cols=['#00f0ff','#ff2bd6','#9d4bff','#ffe600','#39ff14'];
-    for(var i=0;i<60;i++){
-      var d=document.createElement('div');
-      d.style.cssText='position:fixed;z-index:98;width:9px;height:9px;border-radius:2px;pointer-events:none;top:-12px;left:'+Math.random()*100+'vw;background:'+cols[i%5]+';opacity:.9';
-      document.body.appendChild(d);
-      var dur=2200+Math.random()*1800,rot=Math.random()*720;
-      d.animate([{transform:'translateY(0) rotate(0)'},{transform:'translateY('+(window.innerHeight+40)+'px) rotate('+rot+'deg)'}],{duration:dur,easing:'cubic-bezier(.3,.6,.4,1)'});
-      setTimeout(function(el){return function(){el.remove()}}(d),dur);
-    }
+}
+function clearAuto(el){
+  el.classList.remove('autofilled'); el.removeAttribute('title');
+  const label=el.closest('.row') && el.closest('.row').querySelector('label');
+  const b=label && label.querySelector('.auto-badge'); if(b) b.remove();
+}
+async function detectProxy(){
+  let d=null;
+  try{ d=await (await fetch('/api/detect_proxy')).json(); }catch(e){}
+  if(d && d.proxy){
+    $('proxy').value=d.proxy; saveForm();
+    alert('已检测到系统代理并填入：'+d.proxy+(d.source?'\n来源：'+d.source:'')+'\n如不需要可清空。');
+  } else {
+    alert('未检测到系统代理。\n如果不需要让 Gradle 走代理，留空即可。');
   }
-})();
-var st=document.createElement('style');st.textContent='@keyframes hue{from{filter:hue-rotate(0)}to{filter:hue-rotate(360deg)}}';document.head.appendChild(st);
+}
+function pkUp(){ const parts=pkPath.replace(/\/+$/,'').split('/'); parts.pop(); pkLoad(parts.join('/')||'/'); }
+function pkChooseDir(){ $(pkInput).value=pkPath; afterPick(pkInput,pkPath); saveForm(); closePicker(); }
+async function chooseApp(appPath){
+  const r=await (await fetch('/api/resolve_unity?path='+encodeURIComponent(appPath))).json();
+  $(pkInput).value=(r&&r.path)||appPath; afterPick(pkInput,$(pkInput).value); saveForm(); closePicker();
+}
+function closePicker(){ $('mask').style.display='none'; }
+$('mask').addEventListener('click',e=>{ if(e.target===$('mask')) closePicker(); });
+
+// ---------- 表单缓存（存服务端文件，刷新/重启/换端口都能恢复；不含口令）----------
+	const FIELDS=['name','unityProject','templateRoot','templateRootAab','exportMethod','unityPath','androidSdkPath','androidNdkPath','javaHome','proxy','appName','applicationId','versionName','versionCode','resourceCdnBuildPath','resourceCdnLoadPath','outputDir','keystore','keyAlias',
+	  'iosTemplateRoot','iosScheme','iosExportMethod','iosExportRoot','iosExportOptionsAdhoc','iosExportOptionsAppstore','iosBuildNumber'];
+let _saveTimer=null;
+function saveForm(){
+  const o={};
+  FIELDS.forEach(id=>{ const el=$(id); if(el) o[id]= el.classList.contains('autofilled') ? '' : el.value; });
+  o._segType=seg('segType'); o._segFmt=seg('segFmt');
+  o._androidSdkMode=seg('segAndroidSdkMode');
+  o._start=$('startStep').value; o._stop=$('stopStep').value; o._nameCustomized=nameCustomized;
+  o._segPlatform=platform();
+  o._resourceDeliveryMode=resourceMode();
+  o._hideUnitySplash=$('hideUnitySplash').checked;
+  o._hideUnitySplashExplicit=unitySplashUserSet;
+  o._iosAdhoc=segOn('segIosMethods','adhoc'); o._iosAppstore=segOn('segIosMethods','appstore');
+  o._iosExportDsyms=$('iosExportDsyms').checked;
+  o._iosStart=$('iosStartStep').value; o._iosStop=$('iosStopStep').value;
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>{ fetch('/api/formcache',{method:'POST',body:JSON.stringify(o)}).catch(()=>{}); }, 400);
+}
+async function loadForm(){
+  let o=null; try{ o=await (await fetch('/api/formcache')).json(); }catch(e){}
+  if(!o || !Object.keys(o).length) return;
+  FIELDS.forEach(id=>{ const el=$(id); if(el && o[id]!=null && o[id]!=='') el.value=o[id]; });
+  if((!o.resourceCdnBuildPath || o.resourceCdnBuildPath==='') && o.resourceVersion){
+    $('resourceCdnBuildPath').value=legacyCdnPathFromVersion(o.resourceVersion);
+  }
+  if(o._segType) setSegVal('segType',o._segType);
+  if(o._segFmt) setSegVal('segFmt',o._segFmt);
+  if(o._androidSdkMode) setAndroidSdkMode(o._androidSdkMode,false);
+  if(o._start) $('startStep').value=o._start;
+  if(o._stop) $('stopStep').value=o._stop;
+  if(o._iosAdhoc!=null) setSegOn('segIosMethods','adhoc',o._iosAdhoc);
+  if(o._iosAppstore!=null) setSegOn('segIosMethods','appstore',o._iosAppstore);
+  if(o._iosExportDsyms!=null) $('iosExportDsyms').checked=!!o._iosExportDsyms;
+  if(o._iosStart) $('iosStartStep').value=o._iosStart;
+  if(o._iosStop) $('iosStopStep').value=o._iosStop;
+  setSegVal('segResourceMode', normalizeResourceMode(o._resourceDeliveryMode,o.resourceCdnBuildPath,o.resourceVersion));
+  toggleResourceBox();
+  if(o._hideUnitySplash!=null){
+    setUnitySplashValue(!!o._hideUnitySplash,!!o._hideUnitySplashExplicit);
+  } else if(o._hideUnitySplashForFormal===false){
+    setUnitySplashValue(false,true);
+  } else {
+    unitySplashUserSet=false;
+    applyUnitySplashDefault(true);
+  }
+  nameCustomized = !!o._nameCustomized;
+  setSegVal('segFmt', seg('segType')==='release'?'aab':'apk');
+  setPlatform(o._segPlatform||platform());
+  if($('unityPath').value.trim()) autodetectEnv($('unityPath').value.trim());
+}
+document.addEventListener('input', saveForm);
+document.addEventListener('change', saveForm);
+$('hideUnitySplash').addEventListener('change',()=>{ unitySplashUserSet=true; saveForm(); });
+loadConfig().then(loadForm);
 </script>
-</body>
-</html>
+
+
+</body></html>
